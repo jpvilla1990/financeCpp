@@ -2,17 +2,17 @@
 #include <string>
 #include <vector>
 #include <curl/curl.h>
-#include "utils.cpp"
+#include "utils.h"
 
 class Curl {
 public:
-    Curl(const char* url, const char* headers) {
+    Curl() {
         initCurl();
         initSsl();
     }
 
-    std::string sendGetRequest(const char* url, const char* headersString, const char* params) {
-        const char* request = Utils::concatenate(3, url, "/", params);
+    std::string sendGetRequest(std::string url, std::string headersString, std::string params) {
+        std::string request = url + "/" + params;
         struct curl_slist* headers = setupHeaders(headersString);
 
         setupCurl(request, headers);
@@ -37,9 +37,6 @@ public:
     }
 
 private:
-    const char* url;
-    const char* headers;
-
     CURL* curl;
     CURLcode res;
 
@@ -58,19 +55,19 @@ private:
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     }
 
-    curl_slist* setupHeaders(const char* headersString) {
-        std::vector<const char*> headersVector = Utils::splitByDelimiter(headersString, "\r\n");
+    curl_slist* setupHeaders(std::string headersString) {
+        std::vector<std::string> headersVector = Utils::splitByDelimiter(headersString, "\r\n");
         struct curl_slist* headers = nullptr;
 
-        for (const char* header : headersVector) {
-            headers = curl_slist_append(headers, header);
+        for (std::string header : headersVector) {
+            headers = curl_slist_append(headers, header.c_str());
         }
 
         return headers;
     }
 
-    void setupCurl(const char* url, curl_slist* headers) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
+    void setupCurl(std::string url, curl_slist* headers) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     }
 

@@ -1,17 +1,49 @@
 #include <map>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include <filesystem>
+#include "modules/utils.h"
 
 class Config {
 public:
 	struct Api {
-		std::map<const char*, const char*> rapidApi = {
-			{"url", "https://yahoo-finance15.p.rapidapi.com"},
-			{"headers", "X-RapidAPI-Host: yahoo-finance15.p.rapidapi.com\r\nX-RapidAPI-Key: e12e13356cmsh23c92219c4f47d8p127226jsnb98aeeb4c7cf"},
-			{"stocksRequest0", "api/v1/markets/stock/modules?ticker=PAH3.DE&module=financial-data"},
-		};
+        std::map<std::string, std::string> rapidApi;
 	};
-	const Api* api;
+	Api* api;
 
-	Config() {
+	Config(const char* parentPath) {
 		api = new Api();
+        loadConfigFromJsonFile(parentPath, "config.json");
 	};
+private:
+    void loadConfigFromJsonFile(const char* exePath, const char* jsonFile) {
+        std::string filePath = std::string(exePath) + "/" + jsonFile;
+
+        if (std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath)) {
+            
+            std::ifstream file(filePath);
+            if (file.is_open()) {
+                nlohmann::json j;
+                file >> j;
+
+                // Fill the rapidApi map from JSON
+                for (auto& [key, value] : j["rapidApi"].items()) {
+                    std::string valueString = value.get<std::string>();
+                    
+                    api->rapidApi[key] = valueString;
+                }
+                file.close();
+            }
+            else {
+                std::cerr << "Unable to open file: " << filePath << std::endl;
+                throw std::runtime_error("Unable to open file\n");
+            }
+        }
+        else {
+            std::cerr << "File not found: " << filePath << std::endl;
+            throw std::runtime_error("File not found\n");
+        }
+    }
 };
