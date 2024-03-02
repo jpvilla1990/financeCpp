@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
-#include <iostream>
 #include "config.h"
 #include "curlModule.h"
 #include "utils.h"
@@ -20,15 +19,28 @@ public:
             Config* config = new Config(exePath);
             std::string url = config->api->rapidApi.at("url");;
             std::string headers = config->api->rapidApi.at("headers");
-            std::string request = config->api->rapidApi.at("stocksRequest0");
-            std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");
-            //TODO: request and stock name will be update to be read from database
-            std::string response = curlModule->sendGetRequest(url, headers, request);
-            saveInFile(response, this->parentPath + "/stock.txt");
-            periodInSecondsInt = std::stoi(periodInSeconds);
+
+            for (auto it = config->api->rapidApi.begin(); it != config->api->rapidApi.end(); ++it) {
+                auto& key = it->first;
+                auto& value = it->second;
+
+                std::string stock = Utils::removePrefixFromString(key, "stock_");
+
+                if (stock == "") {
+                    // skip iteration on json if the key is not a stóck
+                    continue;
+                }
+
+                //TODO: request and stock name will be update to be read from database
+                std::string response = curlModule->sendGetRequest(url, headers, value);
+                saveInFile(response, this->parentPath + "/" + stock + ".txt");
+            }
 
             delete config;
             delete curlModule;
+
+            std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");
+            periodInSecondsInt = std::stoi(periodInSeconds);
             Utils::delay(periodInSecondsInt);
         }
     }

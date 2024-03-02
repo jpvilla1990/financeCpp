@@ -64,6 +64,16 @@ const char* Utils::copyCharArray(const char* charArray) {
     return charTmp;
 };
 
+std::string Utils::removePrefixFromString(std::string string, std::string prefix) {
+    std::string newString = "";
+    auto pos = string.find(prefix);
+    if (pos == 0) {
+        newString = string.substr(0, pos) + string.substr(pos + prefix.length());
+    }
+
+    return newString;
+};
+
 void Utils::delay(int seconds) {
     // Get the current clock time
     clock_t startTime = clock();
