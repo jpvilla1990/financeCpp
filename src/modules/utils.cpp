@@ -3,6 +3,7 @@
 #include <cstdio> // For snprintf
 #include <vector>
 #include <cstring>
+#include <ctime>
 #include "utils.h"
 
 // Function to concatenate an arbitrary number of const char* strings
@@ -54,11 +55,24 @@ std::vector<std::string> Utils::splitByDelimiter(std::string str, std::string de
     delete[] mutableCopy;
 
     return tokens;
-}
+};
 
 const char* Utils::copyCharArray(const char* charArray) {
     char* charTmp = new char[strlen(charArray) + 1];
     strcpy(charTmp, charArray);
 
     return charTmp;
+};
+
+void Utils::delay(int seconds) {
+    // Get the current clock time
+    clock_t startTime = clock();
+
+    // Convert seconds to clock ticks
+    clock_t delayTicks = seconds * CLOCKS_PER_SEC;
+
+    // Wait until enough time has passed
+    while (clock() < startTime + delayTicks) {
+        // Busy-wait
+    }
 };

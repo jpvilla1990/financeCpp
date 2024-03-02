@@ -10,7 +10,7 @@ all: main copy_dll
 copy_dll:
 	copy /Y src\lib\curl-8.6.0_1-win64-mingw\bin\libcurl-x64.dll $(BIN_DIR)
 main: $(SRC_DIR)/main.cpp
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/main $(MODULES_DIR)/utils.cpp $^ $(LIBS)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/main $(MODULES_DIR)/utils.cpp $(MODULES_DIR)/config.cpp $(MODULES_DIR)/curlModule.cpp $^ $(LIBS)
 clean:
 	rm -f $(BIN_DIR)/*
 

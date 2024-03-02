@@ -2,30 +2,38 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
-#include "curl.cpp"
+#include <iostream>
+#include "config.h"
+#include "curlModule.h"
+#include "utils.h"
 
 class SourceRequestManager {
 public:
-    SourceRequestManager(std::string parentPath, std::string url, std::string headers, std::string request, std::string periodInSeconds) {
-        this->url = url;
-        this->headers = headers;
-        this->request = request;
-        this->periodInSeconds = periodInSeconds;
+    SourceRequestManager(std::string parentPath) {
         this->parentPath = parentPath;
-        this->curl = new Curl();
-    };
+    }
     void run() {
-        //TODO: request and stock name will be update to be read from database
-        std::string response = curl->sendGetRequest(this->url, this->headers, this->request);
-        saveInFile(response, this->parentPath + "/stock.txt");
+        int periodInSecondsInt = 0;
+        while (true) {
+            const char* exePath = this->parentPath.c_str();
+            CurlModule* curlModule = new CurlModule();
+            Config* config = new Config(exePath);
+            std::string url = config->api->rapidApi.at("url");;
+            std::string headers = config->api->rapidApi.at("headers");
+            std::string request = config->api->rapidApi.at("stocksRequest0");
+            std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");
+            //TODO: request and stock name will be update to be read from database
+            std::string response = curlModule->sendGetRequest(url, headers, request);
+            saveInFile(response, this->parentPath + "/stock.txt");
+            periodInSecondsInt = std::stoi(periodInSeconds);
+
+            delete config;
+            delete curlModule;
+            Utils::delay(periodInSecondsInt);
+        }
     }
 private:
-    std::string url;
-    std::string headers;
-    std::string request;
-    std::string periodInSeconds;
     std::string parentPath;
-    Curl* curl;
 
     void saveInFile(std::string content, std::string fileName) {
         std::ofstream outputFile(fileName);

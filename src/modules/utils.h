@@ -7,6 +7,7 @@ public:
 	static const char* concatenate(int, ...);
 	static std::vector<std::string> splitByDelimiter(std::string, std::string);
 	static const char* copyCharArray(const char*);
+	static void delay(int);
 };
 
 #endif // UTILS_H
