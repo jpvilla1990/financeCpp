@@ -4,6 +4,10 @@
 #include <vector>
 #include <cstring>
 #include <ctime>
+#include <fstream>
+#include <string>
+#include <filesystem>
+#include <stdexcept>
 #include "utils.h"
 
 // Function to concatenate an arbitrary number of const char* strings
@@ -73,6 +77,42 @@ std::string Utils::removePrefixFromString(std::string string, std::string prefix
 
     return newString;
 };
+
+void Utils::saveInFile(std::string content, std::string fileName) {
+    std::ofstream outputFile(fileName);
+
+    // Check if the file is opened successfully
+    if (outputFile.is_open()) {
+        // Write the string content to the file
+        outputFile << content;
+
+        // Close the file
+        outputFile.close();
+
+        std::cout << "Content has been saved to " << fileName << std::endl;
+    }
+    else {
+        // If the file could not be opened, print an error message
+        std::cerr << "Unable to open the file for writing." << std::endl;
+        throw std::runtime_error("Unable to open the file for writing\n");
+    }
+}
+
+std::string Utils::loadFromFile(std::string fileName) {
+    std::string content = "";
+    std::ifstream inputFile(fileName);
+
+    if (inputFile.is_open()) {
+        std::string line;
+        while (std::getline(inputFile, line)) {
+            content += line + "\n"; // Append each line to the content string
+        }
+
+        inputFile.close();
+    }
+
+    return content;
+}
 
 void Utils::delay(int seconds) {
     // Get the current clock time
