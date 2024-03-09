@@ -25,19 +25,19 @@ public:
                 std::string stock = Utils::removePrefixFromString(key, STOCK_PREFIX);
 
                 if (stock == "") {
-                    // skip iteration on json if the key is not a stóck
+                    // skip iteration on json if the key is not a stock
                     continue;
                 }
                 std::string response = curlModule->sendGetRequest(url, headers, value);
                 Utils::saveInFile(response, this->parentPath + FILE_SEPARATOR + stock + TXT_EXT);
             }
 
-            delete config;
-            delete curlModule;
-
             std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");
             periodInSecondsInt = std::stoi(periodInSeconds);
             Utils::delay(periodInSecondsInt);
+
+            delete config;
+            delete curlModule;
         }
     }
 private:
