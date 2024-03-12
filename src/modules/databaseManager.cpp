@@ -7,6 +7,7 @@ class DatabaseManager {
 public:
     DatabaseManager(std::string parentPath) {
         this->parentPath = parentPath;
+        Utils::createFolder(this->parentPath + FILE_SEPARATOR + DATA_FOLDER);
     };
     
     void write() {
@@ -20,11 +21,11 @@ public:
                 std::string stock = Utils::removePrefixFromString(key, STOCK_PREFIX);
 
                 if (stock == "") {
-                    // skip iteration on json if the key is not a stóck
+                    // skip iteration on json if the key is not a stï¿½ck
                     continue;
                 }
 
-                std::string stockData = Utils::loadFromFile(this->parentPath + FILE_SEPARATOR + stock + TXT_EXT);
+                std::string stockData = Utils::loadFromFile(this->parentPath + FILE_SEPARATOR + DATA_FOLDER + FILE_SEPARATOR + stock + TXT_EXT);
 
                 if (stockData == "") {
                     continue;
@@ -46,6 +47,7 @@ public:
             Utils::delay(databaseDelay);
         }
     };
+
 private:
     int databaseDelay = 10;
     std::string parentPath;

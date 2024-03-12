@@ -2,4 +2,4 @@
 .vscode
 Project*
 bin/*.json
-bin/*.txt
+bin/data

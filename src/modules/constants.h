@@ -4,6 +4,7 @@
 #define STOCK_PREFIX "stock_"
 #define FILE_SEPARATOR "/"
 #define TXT_EXT ".txt"
+#define DATA_FOLDER "data"
 
 #define URL_KEY "url"
 #define HEADERS_KEY "headers"

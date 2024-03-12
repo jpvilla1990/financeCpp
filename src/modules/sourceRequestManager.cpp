@@ -8,6 +8,7 @@ class SourceRequestManager {
 public:
     SourceRequestManager(std::string parentPath) {
         this->parentPath = parentPath;
+        Utils::createFolder(this->parentPath + FILE_SEPARATOR + DATA_FOLDER);
     }
     void run() {
         int periodInSecondsInt = 0;
@@ -29,7 +30,7 @@ public:
                     continue;
                 }
                 std::string response = curlModule->sendGetRequest(url, headers, value);
-                Utils::saveInFile(response, this->parentPath + FILE_SEPARATOR + stock + TXT_EXT);
+                Utils::saveInFile(response, this->parentPath + FILE_SEPARATOR  + DATA_FOLDER + FILE_SEPARATOR + stock + TXT_EXT);
             }
 
             std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");

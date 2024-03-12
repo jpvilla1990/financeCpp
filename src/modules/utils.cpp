@@ -114,6 +114,17 @@ std::string Utils::loadFromFile(std::string fileName) {
     return content;
 }
 
+void Utils::createFolder(std::string folderPath) {
+    if (!std::filesystem::exists(folderPath)) {
+        if (std::filesystem::create_directory(folderPath)) {
+            std::cout << "Folder "<< folderPath << "created successfully." << std::endl;
+        } else {
+            std::cerr << "Failed to create folder." << std::endl;
+            throw std::runtime_error("Failed to create folder.\n");
+        }
+    }
+}
+
 void Utils::delay(int seconds) {
     // Get the current clock time
     clock_t startTime = clock();

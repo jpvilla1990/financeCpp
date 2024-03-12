@@ -10,6 +10,7 @@ public:
 	static std::string removePrefixFromString(std::string, std::string);
 	static void saveInFile(std::string, std::string);
 	static std::string loadFromFile(std::string);
+	static void createFolder(std::string);
 	static void delay(int);
 };
 
