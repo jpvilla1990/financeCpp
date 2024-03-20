@@ -1,14 +1,13 @@
 #include <iostream>
-#include "config.h"
 #include "curlModule.h"
 #include "utils.h"
 #include "constants.h"
+#include "fileSystem.h"
+#include "config.h"
 
-class SourceRequestManager {
+class SourceRequestManager : FileSystem {
 public:
-    SourceRequestManager(std::string parentPath) {
-        this->parentPath = parentPath;
-        Utils::createFolder(this->parentPath + FILE_SEPARATOR + DATA_FOLDER);
+    SourceRequestManager(std::string parentPath) : FileSystem(parentPath) {
     }
     void run() {
         int periodInSecondsInt = 0;
@@ -41,6 +40,4 @@ public:
             delete curlModule;
         }
     }
-private:
-    std::string parentPath;
 };

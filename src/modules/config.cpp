@@ -27,6 +27,11 @@ void Config::loadConfigFromJsonFile(const char* exePath, const char* jsonFile) {
 
                 api->rapidApi[key] = valueString;
             }
+            for (auto& [key, value] : j["database"].items()) {
+                std::string valueString = value.get<std::string>();
+
+                database[key] = valueString;
+            }
             file.close();
         }
         else {

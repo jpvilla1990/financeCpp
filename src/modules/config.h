@@ -9,6 +9,8 @@ public:
 	struct Api {
         std::map<std::string, std::string> rapidApi;
 	};
+	
+	std::map<std::string, std::string> database;
 	Api* api;
 
 	Config(const char*);

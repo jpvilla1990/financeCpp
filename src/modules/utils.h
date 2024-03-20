@@ -2,6 +2,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <vector>
+
 class Utils {
 public:
 	static const char* concatenate(int, ...);

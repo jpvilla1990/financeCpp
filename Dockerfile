@@ -4,7 +4,8 @@ FROM ubuntu:latest
 # Install dependencies
 RUN apt-get update && apt-get install -y \
      g++ \
-     libcurl4-openssl-dev
+     libcurl4-openssl-dev \
+     libmysqlcppconn-dev
 
 # Set working directory
 WORKDIR /app

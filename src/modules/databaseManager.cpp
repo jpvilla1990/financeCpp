@@ -1,13 +1,28 @@
 #include <nlohmann/json.hpp>
+#include <mysql_connection.h>
+#include <cppconn/driver.h>
+#include <cppconn/statement.h>
 #include "utils.h"
-#include "config.h"
 #include "constants.h"
+#include "fileSystem.h"
+#include "config.h"
+#include <mysql_connection.h>
 
-class DatabaseManager {
+class DatabaseManager : FileSystem {
 public:
-    DatabaseManager(std::string parentPath) {
-        this->parentPath = parentPath;
-        Utils::createFolder(this->parentPath + FILE_SEPARATOR + DATA_FOLDER);
+    DatabaseManager(std::string parentPath) : FileSystem(parentPath) {
+        const char* exePath = this->parentPath.c_str();
+        Config* config = new Config(exePath);
+
+        std::string url = config->database["url"];
+        std::string user = config->database["user"];
+        std::string password = config->database["password"];
+
+        initDatabase(
+            url,
+            user,
+            password
+        );
     };
     
     void write() {
@@ -33,6 +48,7 @@ public:
                 else {
                     std::map<std::string, double> stockDataMap = parseStockDataValues(stockData);
                     std::map<std::string, std::string> stockMetadataMap = parseStockMetadata(stockData);
+                    //TODO: injest data
 
                     for (const auto& pair : stockDataMap) {
                         std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
@@ -50,7 +66,17 @@ public:
 
 private:
     int databaseDelay = 10;
-    std::string parentPath;
+    sql::Driver *driver;
+    sql::Connection *con;
+
+    void initDatabase(std::string url, std::string user, std::string password){
+        try {
+            driver = get_driver_instance();
+            con = driver->connect(url, user, password);
+        } catch (sql::SQLException &e) {
+            std::cout << "Error: " << e.what() << std::endl;
+        }
+    }
 
     std::map<std::string, std::string> parseStockMetadata(std::string stockData) {
         std::map<std::string, std::string> stockDataMap;
