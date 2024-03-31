@@ -17,12 +17,17 @@ public:
         std::string url = config->database["url"];
         std::string user = config->database["user"];
         std::string password = config->database["password"];
+        this->databaseName = DATABASE_NAME;
+        this->tableStocksName = TABLE_STOCKS_NAME;
+        this->tableStocksSchema = TABLE_STOCKS_SCHEMA;
 
         initDatabase(
             url,
             user,
             password
         );
+
+        insertData();
     };
     
     void write() {
@@ -68,11 +73,37 @@ private:
     int databaseDelay = 10;
     sql::Driver *driver;
     sql::Connection *con;
+    std::unique_ptr<sql::Statement> stmt;
+    std::string databaseName;
+    std::string tableStocksName;
+    std::string tableStocksSchema;
 
     void initDatabase(std::string url, std::string user, std::string password){
         try {
             driver = get_driver_instance();
             con = driver->connect(url, user, password);
+
+            stmt.reset(con->createStatement());
+            stmt->execute("CREATE DATABASE IF NOT EXISTS " + this->databaseName);
+            con->setSchema(this->databaseName);
+            stmt->execute("CREATE TABLE IF NOT EXISTS " + this->tableStocksName + " " + this->tableStocksSchema + "");
+        } catch (sql::SQLException &e) {
+            std::cout << "Error: " << e.what() << std::endl;
+        }
+    }
+
+    void insertData(){
+        // Insert some data into the table
+        try {
+            stmt->execute("INSERT INTO test_table (data) VALUES ('Test data 1')");
+            stmt->execute("INSERT INTO test_table (data) VALUES ('Test data 2')");
+
+            std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM test_table"));
+
+            // Print the retrieved data
+            while (res->next()) {
+                std::cout << "ID: " << res->getInt("id") << ", Data: " << res->getString("data") << std::endl;
+            }
         } catch (sql::SQLException &e) {
             std::cout << "Error: " << e.what() << std::endl;
         }

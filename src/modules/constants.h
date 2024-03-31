@@ -39,4 +39,8 @@
 #define RAPIDAPI_SYMBOL "symbol"
 #define RAPIDAPI_PROCESSEDTIME "processedTime"
 
+#define DATABASE_NAME "finances"
+#define TABLE_STOCKS_NAME "stocks"
+#define TABLE_STOCKS_SCHEMA "(id INT NOT NULL AUTO_INCREMENT, data VARCHAR(100), PRIMARY KEY (id))"
+
 #endif
