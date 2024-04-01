@@ -28,6 +28,7 @@ public:
                     // skip iteration on json if the key is not a stock
                     continue;
                 }
+                writeLog("request " + url + " " + headers + " " + value);
                 std::string response = curlModule->sendGetRequest(url, headers, value);
                 Utils::saveInFile(response, this->parentPath + FILE_SEPARATOR  + DATA_FOLDER + FILE_SEPARATOR + stock + TXT_EXT);
             }

@@ -7,6 +7,7 @@
 #include "fileSystem.h"
 #include "config.h"
 #include <mysql_connection.h>
+#include <string>
 
 class DatabaseManager : FileSystem {
 public:
@@ -26,8 +27,6 @@ public:
             user,
             password
         );
-
-        insertData();
     };
     
     void write() {
@@ -53,7 +52,7 @@ public:
                 else {
                     std::map<std::string, double> stockDataMap = parseStockDataValues(stockData);
                     std::map<std::string, std::string> stockMetadataMap = parseStockMetadata(stockData);
-                    //TODO: injest data
+                    insertData(this->tableStocksName, stockMetadataMap, stockDataMap);
 
                     for (const auto& pair : stockDataMap) {
                         std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
@@ -87,24 +86,49 @@ private:
             stmt->execute("CREATE DATABASE IF NOT EXISTS " + this->databaseName);
             con->setSchema(this->databaseName);
             stmt->execute("CREATE TABLE IF NOT EXISTS " + this->tableStocksName + " " + this->tableStocksSchema + "");
+            writeLog("SQL create table " + this->tableStocksName);
         } catch (sql::SQLException &e) {
+            writeLog("SQL create table error " + (std::string)e.what());
             std::cout << "Error: " << e.what() << std::endl;
         }
     }
 
-    void insertData(){
-        // Insert some data into the table
+    void insertData(std::string tableName, std::map<std::string, std::string> stockMetadataMap, std::map<std::string, double> stockDataMap){
+        // Insert some data into the table in the following format:
+        // INSERT INTO your_table_name (column1, column2, column3)
+        // VALUES
+        //     (value1_row1, value2_row1, value3_row1),
         try {
-            stmt->execute("INSERT INTO test_table (data) VALUES ('Test data 1')");
-            stmt->execute("INSERT INTO test_table (data) VALUES ('Test data 2')");
+            std::string sqlCommandPrefix = "INSERT INTO " + tableName + " (";
+            std::string sqlCommandRowNames = "";
+            std::string sqlCommandValues = ") \nVALUES\n(";
+            std::string sqlCommandEnd = ");";
 
-            std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM test_table"));
-
-            // Print the retrieved data
-            while (res->next()) {
-                std::cout << "ID: " << res->getInt("id") << ", Data: " << res->getString("data") << std::endl;
+            bool firstElement = true;
+            for(auto it = stockMetadataMap.begin(); it != stockMetadataMap.end(); ++it) {
+                if(firstElement){
+                    firstElement = false;
+                    sqlCommandRowNames += it->first;
+                    sqlCommandValues += "'" + it->second + "'";
+                } else {
+                    sqlCommandRowNames += ", " + it->first;
+                    sqlCommandValues += ", '" + it->second + "'";
+                }
             }
+
+            for(auto it = stockDataMap.begin(); it != stockDataMap.end(); ++it) {
+                sqlCommandRowNames += ", " + it->first;
+                sqlCommandValues += ", '" + std::to_string(it->second) + "'";
+            }
+
+            std::string sqlCommand = sqlCommandPrefix + sqlCommandRowNames + sqlCommandValues + sqlCommandEnd;
+            stmt->execute(sqlCommand);
+
+            writeLog("SQL command " + sqlCommand);
+
+            std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM " + tableName));
         } catch (sql::SQLException &e) {
+            writeLog("SQL command error " + (std::string)e.what());
             std::cout << "Error: " << e.what() << std::endl;
         }
     }
@@ -272,7 +296,7 @@ private:
             value = j[key1][key2];
         }
         catch (const std::exception& e) {
-            //TODO: log exception
+            writeLog("Stocks read from json error " + key1 + " " + key2);
         }
         return value;
     };
@@ -283,7 +307,7 @@ private:
             value = j[key1][key2][key3];
         }
         catch (const std::exception& e) {
-            //TODO: log exception
+            writeLog("Stocks read from json error " + key1 + " " + key2 + " " + key3);
         }
         return value;
     };

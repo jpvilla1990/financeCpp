@@ -5,6 +5,8 @@
 #define FILE_SEPARATOR "/"
 #define TXT_EXT ".txt"
 #define DATA_FOLDER "data"
+#define LOG_FOLDER "logs"
+#define LOG_FILE "backEndLog.txt"
 
 #define URL_KEY "url"
 #define HEADERS_KEY "headers"
@@ -41,6 +43,31 @@
 
 #define DATABASE_NAME "finances"
 #define TABLE_STOCKS_NAME "stocks"
-#define TABLE_STOCKS_SCHEMA "(id INT NOT NULL AUTO_INCREMENT, data VARCHAR(100), PRIMARY KEY (id))"
-
+#define TABLE_STOCKS_SCHEMA \
+    "(id INT NOT NULL AUTO_INCREMENT, " \
+    "currentPrice VARCHAR(100), " \
+    "totalCash VARCHAR(100), " \
+    "totalCashPerShare VARCHAR(100), " \
+    "ebitda VARCHAR(100), " \
+    "totalDebt VARCHAR(100), " \
+    "quickRatio VARCHAR(100), " \
+    "currentRatio VARCHAR(100), " \
+    "totalRevenue VARCHAR(100), " \
+    "debtToEquity VARCHAR(100), " \
+    "revenuePerShare VARCHAR(100), " \
+    "returnOnAssets VARCHAR(100), " \
+    "returnOnEquity VARCHAR(100), " \
+    "grossProfits VARCHAR(100), " \
+    "freeCashflow VARCHAR(100), " \
+    "operatingCashflow VARCHAR(100), " \
+    "earningsGrowth VARCHAR(100), " \
+    "revenueGrowth VARCHAR(100), " \
+    "grossMargins VARCHAR(100), " \
+    "ebitdaMargins VARCHAR(100), " \
+    "operatingMargins VARCHAR(100), " \
+    "profitMargins VARCHAR(100), " \
+    "financialCurrency VARCHAR(100), " \
+    "symbol VARCHAR(100), " \
+    "processedTime VARCHAR(100), " \
+    "PRIMARY KEY (id))"
 #endif

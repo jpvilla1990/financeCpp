@@ -3,3 +3,4 @@
 Project*
 bin/*.json
 bin/data
+bin/logs

@@ -88,8 +88,24 @@ void Utils::saveInFile(std::string content, std::string fileName) {
 
         // Close the file
         outputFile.close();
+    }
+    else {
+        // If the file could not be opened, print an error message
+        std::cerr << "Unable to open the file for writing." << std::endl;
+        throw std::runtime_error("Unable to open the file for writing\n");
+    }
+}
 
-        std::cout << "Content has been saved to " << fileName << std::endl;
+void Utils::appendInFile(std::string content, std::string fileName) {
+    std::ofstream outputFile(fileName, std::ios_base::app);
+
+    // Check if the file is opened successfully
+    if (outputFile.is_open()) {
+        // Write the string content to the file
+        outputFile << content;
+
+        // Close the file
+        outputFile.close();
     }
     else {
         // If the file could not be opened, print an error message
