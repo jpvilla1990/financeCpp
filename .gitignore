@@ -2,5 +2,6 @@
 .vscode
 Project*
 bin/*.json
-bin/data
-bin/logs
+**data
+**/logs
+**/mysql

@@ -53,14 +53,6 @@ public:
                     std::map<std::string, double> stockDataMap = parseStockDataValues(stockData);
                     std::map<std::string, std::string> stockMetadataMap = parseStockMetadata(stockData);
                     insertData(this->tableStocksName, stockMetadataMap, stockDataMap);
-
-                    for (const auto& pair : stockDataMap) {
-                        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-                    }
-
-                    for (const auto& pair : stockMetadataMap) {
-                        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-                    }
                 }
             }
 
@@ -80,7 +72,30 @@ private:
     void initDatabase(std::string url, std::string user, std::string password){
         try {
             driver = get_driver_instance();
-            con = driver->connect(url, user, password);
+
+            const int maxRetries = 10;
+            int retryCount = 0;
+            while (retryCount < maxRetries) {
+                try {
+                    driver = get_driver_instance();
+                    con = driver->connect(url, user, password);
+                    if (con) {
+                        writeLog("Successfully connected to the database.");
+                        break;
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Failed to connect to the database: " << e.what() << std::endl;
+                    writeLog("Failed to connect to the database:" + (std::string)e.what());
+                }
+                // Wait for a while before retrying
+                Utils::delay(databaseDelay);
+                retryCount++;
+            }
+
+            if (!con) {
+                throw std::runtime_error("Failed to connect to the database after maximum retry attempts.");
+                writeLog("Failed to connect to the database after maximum retry attempts.");
+            }
 
             stmt.reset(con->createStatement());
             stmt->execute("CREATE DATABASE IF NOT EXISTS " + this->databaseName);

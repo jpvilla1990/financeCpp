@@ -2,11 +2,12 @@ version: '3'
 services:
   backend:
     container_name: back_end
-    image: collector:0.1.0
+    image: collector:0.3.0
     ports:
       - "8080:80"
     volumes:
       - ./data:/app/data
+      - ./logs:/app/logs
       - ./bin/config.json:/app/config.json
 
   mysql:
