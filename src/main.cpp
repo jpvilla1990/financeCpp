@@ -1,8 +1,50 @@
 #include <string>
 #include <filesystem>
 #include <thread>
+#include <boost/asio.hpp>
+#include <boost/beast.hpp>
 #include "modules/sourceRequestManager.cpp"
 #include "modules/databaseManager.cpp"
+
+using namespace boost::asio;
+namespace http = boost::beast::http;
+
+std::string handle_request(const http::request<http::string_body>& req, http::response<http::string_body>& res) {
+    res.version(req.version());
+    res.set(http::field::server, "Boost REST Server");
+
+    std::string action = "";
+
+    if (req.method() == http::verb::get) {
+        if (req.target() == START_COLLECTION) {
+            res.result(http::status::ok);
+            res.body() = START_COLLECTION_ACTION;
+            action = START_COLLECTION_ACTION;
+        } else if(req.target() == STOP_COLLECTION){
+            res.result(http::status::ok);
+            res.body() = STOP_COLLECTION_ACTION;
+            action = STOP_COLLECTION_ACTION;
+        } else if (req.target() == START_DATABASE_INGESTION) {
+            res.result(http::status::ok);
+            res.body() = START_DATABASE_INGESTION_ACTION;
+            action = START_DATABASE_INGESTION_ACTION;
+        } else if (req.target() == STOP_DATABASE_INGESTION) {
+            res.result(http::status::ok);
+            res.body() = STOP_DATABASE_INGESTION_ACTION;
+            action = STOP_DATABASE_INGESTION_ACTION;
+        } else {
+            res.result(http::status::not_found);
+            res.body() = SERVER_ACTION_NOT_FOUND;
+        }
+    } else {
+        res.result(http::status::bad_request);
+        res.body() = SERVER_BAD_REQUEST;
+    }
+
+    res.prepare_payload();
+
+    return action;
+}
 
 void runSourceRequestManager(SourceRequestManager* sourceRequestManager) {
     sourceRequestManager->run();
@@ -14,19 +56,60 @@ void writeDatabase(DatabaseManager* databaseManager) {
 
 int main(int argc, char* argv[]) {
     std::string exePathStr = std::filesystem::path(argv[0]).parent_path().string();
+    const char* exePath = exePathStr.c_str();
 
     SourceRequestManager* sourceRequestManager = new SourceRequestManager(exePathStr);
     DatabaseManager* databaseManager = new DatabaseManager(exePathStr);
 
-    std::thread sourceThread(runSourceRequestManager, sourceRequestManager);
-    std::thread databaseThread(writeDatabase, databaseManager);
+    Config* config = new Config(exePath);
+    std::string portString = config->server["port"];
+    int port = std::stoi(portString);
 
-    sourceThread.join();
-    databaseThread.join();
+    try {
+        io_service ioservice;
+        ip::tcp::acceptor acceptor(ioservice, ip::tcp::endpoint(ip::tcp::v4(), port));
 
-    // Cleanup
-    delete sourceRequestManager;
-    delete databaseManager;
+        while (true) {
+            ip::tcp::socket socket(ioservice);
+            acceptor.accept(socket);
+
+            boost::beast::flat_buffer buffer;
+            http::request<http::string_body> req;
+
+            boost::system::error_code ec;
+            http::read(socket, buffer, req, ec);
+            if (ec) {
+                std::cerr << "Error reading request: " << ec.message() << std::endl;
+                continue;
+            }
+
+            http::response<http::string_body> res;
+            std::string action = handle_request(req, res);
+            std::cout << action << std::endl;
+            if(action == START_COLLECTION_ACTION){
+                std::thread sourceThread(runSourceRequestManager, sourceRequestManager);
+                sourceThread.detach();
+            } else if(action == STOP_COLLECTION_ACTION){
+                sourceRequestManager->stop();
+            }
+            else if(action == START_DATABASE_INGESTION_ACTION){
+                std::thread databaseThread(writeDatabase, databaseManager);
+                databaseThread.detach();
+            } else if(action == STOP_DATABASE_INGESTION_ACTION){
+                databaseManager->stop();
+            }
+
+            http::write(socket, res, ec);
+            if (ec) {
+                std::cerr << "Error writing response: " << ec.message() << std::endl;
+                continue;
+            }
+
+            socket.shutdown(ip::tcp::socket::shutdown_send, ec);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
 
     return 0;
 }

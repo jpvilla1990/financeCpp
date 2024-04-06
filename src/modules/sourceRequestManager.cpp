@@ -9,9 +9,15 @@ class SourceRequestManager : FileSystem {
 public:
     SourceRequestManager(std::string parentPath) : FileSystem(parentPath) {
     }
+
     void run() {
+        if(this->running) {
+            return;
+        } else {
+            this->running = true;
+        }
         int periodInSecondsInt = 0;
-        while (true) {
+        while (this->running) {
             const char* exePath = this->parentPath.c_str();
             CurlModule* curlModule = new CurlModule();
             Config* config = new Config(exePath);
@@ -41,4 +47,11 @@ public:
             delete curlModule;
         }
     }
+
+    void stop() {
+        this->running = false;
+    }
+
+private:
+    bool running = false;
 };

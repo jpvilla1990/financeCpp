@@ -32,6 +32,11 @@ void Config::loadConfigFromJsonFile(const char* exePath, const char* jsonFile) {
 
                 database[key] = valueString;
             }
+            for (auto& [key, value] : j["server"].items()) {
+                std::string valueString = value.get<std::string>();
+
+                server[key] = valueString;
+            }
             file.close();
         }
         else {

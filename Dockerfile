@@ -5,7 +5,8 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y \
      g++ \
      libcurl4-openssl-dev \
-     libmysqlcppconn-dev
+     libmysqlcppconn-dev \
+     libboost-all-dev
 
 # Set working directory
 WORKDIR /app

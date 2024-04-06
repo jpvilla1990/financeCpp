@@ -11,6 +11,7 @@ public:
 	};
 	
 	std::map<std::string, std::string> database;
+	std::map<std::string, std::string> server;
 	Api* api;
 
 	Config(const char*);

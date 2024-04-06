@@ -70,4 +70,18 @@
     "symbol VARCHAR(100), " \
     "processedTime VARCHAR(100), " \
     "PRIMARY KEY (id))"
+
+#define START_COLLECTION "/startCollection"
+#define STOP_COLLECTION "/stopCollection"
+#define START_DATABASE_INGESTION "/startDatabaseIngestion"
+#define STOP_DATABASE_INGESTION "/stopDatabaseIngestion"
+
+#define START_COLLECTION_ACTION "startCollectionData"
+#define STOP_COLLECTION_ACTION "stopCollectionData"
+#define START_DATABASE_INGESTION_ACTION "startDatabaseIngestion"
+#define STOP_DATABASE_INGESTION_ACTION "stopDatabaseIngestion"
+#define SERVER_ACTION_NOT_FOUND "serverActionNotFound"
+
+#define SERVER_BAD_REQUEST "Bad Request"
+
 #endif

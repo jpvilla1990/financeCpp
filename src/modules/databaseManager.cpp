@@ -30,7 +30,12 @@ public:
     };
     
     void write() {
-        while (true) {
+        if(this->running) {
+            return;
+        } else {
+            this->running = true;
+        }
+        while (this->running) {
             const char* exePath = this->parentPath.c_str();
             Config* config = new Config(exePath);
 
@@ -60,7 +65,12 @@ public:
         }
     };
 
+    void stop() {
+        this->running = false;
+    }
+
 private:
+    bool running = false;
     int databaseDelay = 10;
     sql::Driver *driver;
     sql::Connection *con;
