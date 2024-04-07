@@ -9,29 +9,54 @@
 using namespace boost::asio;
 namespace http = boost::beast::http;
 
-std::string handle_request(const http::request<http::string_body>& req, http::response<http::string_body>& res) {
+SourceRequestManager* sourceRequestManager;
+DatabaseManager* databaseManager;
+
+void runSourceRequestManager(SourceRequestManager* sourceRequestManager) {
+    sourceRequestManager->run();
+}
+
+void writeDatabase(DatabaseManager* databaseManager) {
+    databaseManager->write();
+}
+
+void handle_request(const http::request<http::string_body>& req, http::response<http::string_body>& res) {
     res.version(req.version());
     res.set(http::field::server, "Boost REST Server");
 
-    std::string action = "";
+    std::string requestStringFull = req.target().to_string();
+    std::vector<std::string> requestVector = Utils::splitByDelimiter(requestStringFull, GET_REQUEST_DELIMITER);
+    std::string requestString = requestVector.at(0);
 
     if (req.method() == http::verb::get) {
-        if (req.target() == START_COLLECTION) {
+        if (requestString == START_COLLECTION) {
             res.result(http::status::ok);
             res.body() = START_COLLECTION_ACTION;
-            action = START_COLLECTION_ACTION;
-        } else if(req.target() == STOP_COLLECTION){
+            std::thread sourceThread(runSourceRequestManager, sourceRequestManager);
+            sourceThread.detach();
+        } else if(requestString == STOP_COLLECTION){
             res.result(http::status::ok);
             res.body() = STOP_COLLECTION_ACTION;
-            action = STOP_COLLECTION_ACTION;
-        } else if (req.target() == START_DATABASE_INGESTION) {
+            sourceRequestManager->stop();
+        } else if (requestString == START_DATABASE_INGESTION) {
             res.result(http::status::ok);
             res.body() = START_DATABASE_INGESTION_ACTION;
-            action = START_DATABASE_INGESTION_ACTION;
-        } else if (req.target() == STOP_DATABASE_INGESTION) {
+            std::thread databaseThread(writeDatabase, databaseManager);
+            databaseThread.detach();
+        } else if (requestString == STOP_DATABASE_INGESTION) {
             res.result(http::status::ok);
             res.body() = STOP_DATABASE_INGESTION_ACTION;
-            action = STOP_DATABASE_INGESTION_ACTION;
+            databaseManager->stop();
+        } else if(requestString == GET_STOCK_INFO){
+            res.result(http::status::ok);
+            std::map<std::string, std::string> params = Utils::getParamsGetRequest(requestVector.at(1));
+            auto it = params.find(GET_STOCK_INFO_PARAM_STOCK);
+            if (it != params.end()) {
+                std::string responseStock = databaseManager->getStockData(params.at(GET_STOCK_INFO_PARAM_STOCK), STOCK_QUERY_LIMIT_ONE);
+                res.body() = responseStock;
+            } else {
+                res.body() = SERVER_PARAM_NOT_FOUND;
+            }
         } else {
             res.result(http::status::not_found);
             res.body() = SERVER_ACTION_NOT_FOUND;
@@ -42,24 +67,14 @@ std::string handle_request(const http::request<http::string_body>& req, http::re
     }
 
     res.prepare_payload();
-
-    return action;
-}
-
-void runSourceRequestManager(SourceRequestManager* sourceRequestManager) {
-    sourceRequestManager->run();
-}
-
-void writeDatabase(DatabaseManager* databaseManager) {
-    databaseManager->write();
 }
 
 int main(int argc, char* argv[]) {
     std::string exePathStr = std::filesystem::path(argv[0]).parent_path().string();
     const char* exePath = exePathStr.c_str();
 
-    SourceRequestManager* sourceRequestManager = new SourceRequestManager(exePathStr);
-    DatabaseManager* databaseManager = new DatabaseManager(exePathStr);
+    sourceRequestManager = new SourceRequestManager(exePathStr);
+    databaseManager = new DatabaseManager(exePathStr);
 
     Config* config = new Config(exePath);
     std::string portString = config->server["port"];
@@ -84,20 +99,7 @@ int main(int argc, char* argv[]) {
             }
 
             http::response<http::string_body> res;
-            std::string action = handle_request(req, res);
-            std::cout << action << std::endl;
-            if(action == START_COLLECTION_ACTION){
-                std::thread sourceThread(runSourceRequestManager, sourceRequestManager);
-                sourceThread.detach();
-            } else if(action == STOP_COLLECTION_ACTION){
-                sourceRequestManager->stop();
-            }
-            else if(action == START_DATABASE_INGESTION_ACTION){
-                std::thread databaseThread(writeDatabase, databaseManager);
-                databaseThread.detach();
-            } else if(action == STOP_DATABASE_INGESTION_ACTION){
-                databaseManager->stop();
-            }
+            handle_request(req, res);
 
             http::write(socket, res, ec);
             if (ec) {

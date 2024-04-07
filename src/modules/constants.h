@@ -71,17 +71,28 @@
     "processedTime VARCHAR(100), " \
     "PRIMARY KEY (id))"
 
+#define GET_REQUEST_DELIMITER "?"
+#define GET_REQUEST_PARAMS_DELIMITER "&"
+#define GET_REQUEST_PARAMS_VALUES_DELIMITER "="
+
 #define START_COLLECTION "/startCollection"
 #define STOP_COLLECTION "/stopCollection"
 #define START_DATABASE_INGESTION "/startDatabaseIngestion"
 #define STOP_DATABASE_INGESTION "/stopDatabaseIngestion"
+#define GET_STOCK_INFO "/getStockInfo"
+#define GET_STOCK_INFO_PARAM_STOCK "stock"
 
 #define START_COLLECTION_ACTION "startCollectionData"
 #define STOP_COLLECTION_ACTION "stopCollectionData"
 #define START_DATABASE_INGESTION_ACTION "startDatabaseIngestion"
 #define STOP_DATABASE_INGESTION_ACTION "stopDatabaseIngestion"
+#define GET_STOCK_INFO_ACTION "getStockInfo"
 #define SERVER_ACTION_NOT_FOUND "serverActionNotFound"
 
+#define SERVER_PARAM_NOT_FOUND "serverParamNotFound"
+
 #define SERVER_BAD_REQUEST "Bad Request"
+
+#define STOCK_QUERY_LIMIT_ONE 1
 
 #endif

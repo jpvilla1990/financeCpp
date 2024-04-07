@@ -8,6 +8,7 @@
 #include <string>
 #include <filesystem>
 #include <stdexcept>
+#include "constants.h"
 #include "utils.h"
 
 // Function to concatenate an arbitrary number of const char* strings
@@ -36,6 +37,18 @@ const char* Utils::concatenate(int numStrings, ...) {
     va_end(args);
 
     return result;
+};
+
+std::map<std::string, std::string> Utils::getParamsGetRequest(std::string str){
+    std::map<std::string, std::string> paramsValuesMap;
+    std::vector<std::string> paramsValuesVector = Utils::splitByDelimiter(str, GET_REQUEST_PARAMS_DELIMITER);
+
+    for (std::vector<std::string>::const_iterator it = paramsValuesVector.begin(); it != paramsValuesVector.end(); ++it) {
+        std::vector<std::string> paramValueVector = Utils::splitByDelimiter(*it, GET_REQUEST_PARAMS_VALUES_DELIMITER);
+        paramsValuesMap[paramValueVector.at(0)] = paramValueVector.at(1);
+    }
+
+    return paramsValuesMap;
 };
 
 // Function to split a const char* string by delimiter

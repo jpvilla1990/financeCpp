@@ -2,7 +2,7 @@ version: '3'
 services:
   backend:
     container_name: back_end
-    image: collector:0.4.0
+    image: collector:0.6.0
     ports:
       - "8100:8100"
     volumes:

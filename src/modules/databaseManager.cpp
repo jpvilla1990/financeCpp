@@ -6,8 +6,8 @@
 #include "constants.h"
 #include "fileSystem.h"
 #include "config.h"
-#include <mysql_connection.h>
 #include <string>
+#include <iostream>
 
 class DatabaseManager : FileSystem {
 public:
@@ -57,7 +57,7 @@ public:
                 else {
                     std::map<std::string, double> stockDataMap = parseStockDataValues(stockData);
                     std::map<std::string, std::string> stockMetadataMap = parseStockMetadata(stockData);
-                    insertData(this->tableStocksName, stockMetadataMap, stockDataMap);
+                    insertData(stockMetadataMap, stockDataMap);
                 }
             }
 
@@ -67,6 +67,60 @@ public:
 
     void stop() {
         this->running = false;
+    }
+
+    std::string getStockData(std::string stockName, int limit){
+        std::string queryResponse = "{\"" + stockName + "\" : {";
+        std::string limitString = std::to_string(limit);
+        std::string sqlCommand = "SELECT * FROM " + this->tableStocksName + " WHERE " + RAPIDAPI_SYMBOL + " = '" + stockName + "' ORDER BY id DESC LIMIT " + limitString;
+        try {
+            sql::ResultSet *res;
+
+            res = this->stmt->executeQuery(sqlCommand);
+            writeLog(sqlCommand);
+
+            // Process the result
+            if (res->next()) {
+                queryResponse += "\"" + std::string(RAPIDAPI_CURRENTPRICE) + "\" : \"" + res->getString(RAPIDAPI_CURRENTPRICE) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_TOTALCASH) + "\" : \"" + res->getString(RAPIDAPI_TOTALCASH) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_TOTALCASHPERSHARE) + "\" : \"" + res->getString(RAPIDAPI_TOTALCASHPERSHARE) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_EBITDA) + "\" : \"" + res->getString(RAPIDAPI_EBITDA) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_TOTALDEBT) + "\" : \"" + res->getString(RAPIDAPI_TOTALDEBT) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_QUICKRATIO) + "\" : \"" + res->getString(RAPIDAPI_QUICKRATIO) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_CURRENTRATIO) + "\" : \"" + res->getString(RAPIDAPI_CURRENTRATIO) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_TOTALREVENUE) + "\" : \"" + res->getString(RAPIDAPI_TOTALREVENUE) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_DEBTTOEQUITY) + "\" : \"" + res->getString(RAPIDAPI_DEBTTOEQUITY) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_REVENUEPERSHARE) + "\" : \"" + res->getString(RAPIDAPI_REVENUEPERSHARE) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_RETURNONASSETS) + "\" : \"" + res->getString(RAPIDAPI_RETURNONASSETS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_RETURNONEQUITY) + "\" : \"" + res->getString(RAPIDAPI_RETURNONEQUITY) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_GROSSPROFITS) + "\" : \"" + res->getString(RAPIDAPI_GROSSPROFITS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_FREECASHFLOW) + "\" : \"" + res->getString(RAPIDAPI_FREECASHFLOW) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_OPERATINGCASHFLOW) + "\" : \"" + res->getString(RAPIDAPI_OPERATINGCASHFLOW) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_EARNINGSGROWTH) + "\" : \"" + res->getString(RAPIDAPI_EARNINGSGROWTH) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_REVENUEGROWTH) + "\" : \"" + res->getString(RAPIDAPI_REVENUEGROWTH) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_GROSSMARGINS) + "\" : \"" + res->getString(RAPIDAPI_GROSSMARGINS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_EBITDAMARGINS) + "\" : \"" + res->getString(RAPIDAPI_EBITDAMARGINS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_OPERATINGMARGINS) + "\" : \"" + res->getString(RAPIDAPI_OPERATINGMARGINS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_PROFITMARGINS) + "\" : \"" + res->getString(RAPIDAPI_PROFITMARGINS) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_FINANCIALCURRENCY) + "\" : \"" + res->getString(RAPIDAPI_FINANCIALCURRENCY) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_SYMBOL) + "\" : \"" + res->getString(RAPIDAPI_SYMBOL) + "\", ";
+                queryResponse += "\"" + std::string(RAPIDAPI_PROCESSEDTIME) + "\" : \"" + res->getString(RAPIDAPI_PROCESSEDTIME) + "\"";
+            } else {
+                writeLog("No entries found for symbol " + stockName);
+            }
+
+            delete res;
+        } catch (sql::SQLException &e) {
+            writeLog("SQL get Data " + (std::string)e.what());
+            std::cout << e.what() << std::endl;
+        } catch (std::exception &e) {
+            writeLog("Error " + (std::string)e.what());
+            std::cout << e.what() << std::endl;
+        }
+
+        queryResponse += "}}";
+
+        return queryResponse;
     }
 
 private:
@@ -107,10 +161,10 @@ private:
                 writeLog("Failed to connect to the database after maximum retry attempts.");
             }
 
-            stmt.reset(con->createStatement());
-            stmt->execute("CREATE DATABASE IF NOT EXISTS " + this->databaseName);
+            this->stmt.reset(con->createStatement());
+            this->stmt->execute("CREATE DATABASE IF NOT EXISTS " + this->databaseName);
             con->setSchema(this->databaseName);
-            stmt->execute("CREATE TABLE IF NOT EXISTS " + this->tableStocksName + " " + this->tableStocksSchema + "");
+            this->stmt->execute("CREATE TABLE IF NOT EXISTS " + this->tableStocksName + " " + this->tableStocksSchema + "");
             writeLog("SQL create table " + this->tableStocksName);
         } catch (sql::SQLException &e) {
             writeLog("SQL create table error " + (std::string)e.what());
@@ -118,13 +172,13 @@ private:
         }
     }
 
-    void insertData(std::string tableName, std::map<std::string, std::string> stockMetadataMap, std::map<std::string, double> stockDataMap){
+    void insertData(std::map<std::string, std::string> stockMetadataMap, std::map<std::string, double> stockDataMap){
         // Insert some data into the table in the following format:
         // INSERT INTO your_table_name (column1, column2, column3)
         // VALUES
         //     (value1_row1, value2_row1, value3_row1),
         try {
-            std::string sqlCommandPrefix = "INSERT INTO " + tableName + " (";
+            std::string sqlCommandPrefix = "INSERT INTO " + this->tableStocksName + " (";
             std::string sqlCommandRowNames = "";
             std::string sqlCommandValues = ") \nVALUES\n(";
             std::string sqlCommandEnd = ");";
@@ -147,11 +201,11 @@ private:
             }
 
             std::string sqlCommand = sqlCommandPrefix + sqlCommandRowNames + sqlCommandValues + sqlCommandEnd;
-            stmt->execute(sqlCommand);
+            this->stmt->execute(sqlCommand);
 
             writeLog("SQL command " + sqlCommand);
 
-            std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM " + tableName));
+            std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM " + this->tableStocksName));
         } catch (sql::SQLException &e) {
             writeLog("SQL command error " + (std::string)e.what());
             std::cout << "Error: " << e.what() << std::endl;
