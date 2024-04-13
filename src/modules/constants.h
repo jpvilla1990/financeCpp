@@ -87,7 +87,7 @@
 #define GET_STOCK_INFO "/getStockInfo"
 #define GET_STOCK_INFO_PARAM_STOCK "stock"
 #define ADD_STOCK "/addStock"
-#define ADD_STOCK_INFO_PARAM_STOCK "stockName"
+#define ADD_STOCK_INFO_PARAM_STOCK "stock"
 
 #define START_COLLECTION_ACTION "startCollectionData"
 #define STOP_COLLECTION_ACTION "stopCollectionData"
