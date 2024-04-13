@@ -2,5 +2,5 @@
 /stopCollection
 /startDatabaseIngestion
 /stopDatabaseIngestion
-/getStockInfo?stock=STOCK_NAME
-/addStock?stock=STOCK_NAME
+/getStockInfo?stock=STOCK_TICKER
+/addStock?stock=STOCK_TICKER
