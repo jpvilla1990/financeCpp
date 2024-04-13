@@ -11,6 +11,7 @@ namespace http = boost::beast::http;
 
 SourceRequestManager* sourceRequestManager;
 DatabaseManager* databaseManager;
+Config* config;
 
 void runSourceRequestManager(SourceRequestManager* sourceRequestManager) {
     sourceRequestManager->run();
@@ -57,6 +58,16 @@ void handle_request(const http::request<http::string_body>& req, http::response<
             } else {
                 res.body() = SERVER_PARAM_NOT_FOUND;
             }
+        } else if(requestString == ADD_STOCK){
+            res.result(http::status::ok);
+            std::map<std::string, std::string> params = Utils::getParamsGetRequest(requestVector.at(1));
+            auto it = params.find(ADD_STOCK_INFO_PARAM_STOCK);
+            if (it != params.end()) {
+                config->addStock(params.at(ADD_STOCK_INFO_PARAM_STOCK));
+                res.body() = "param " + params.at(ADD_STOCK_INFO_PARAM_STOCK) + " was added";
+            } else {
+                res.body() = SERVER_PARAM_NOT_FOUND;
+            }
         } else {
             res.result(http::status::not_found);
             res.body() = SERVER_ACTION_NOT_FOUND;
@@ -76,7 +87,7 @@ int main(int argc, char* argv[]) {
     sourceRequestManager = new SourceRequestManager(exePathStr);
     databaseManager = new DatabaseManager(exePathStr);
 
-    Config* config = new Config(exePath);
+    config = new Config(exePath);
     std::string portString = config->server["port"];
     int port = std::stoi(portString);
 

@@ -15,8 +15,11 @@ public:
 	Api* api;
 
 	Config(const char*);
+	void addStock(std::string);
 private:
+	const char* parentPath;
 	void loadConfigFromJsonFile(const char*, const char*);
+	void saveConfigToJsonFile(const char*, const char*);
 };
 
 #endif

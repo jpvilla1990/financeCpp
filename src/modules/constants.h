@@ -7,6 +7,9 @@
 #define DATA_FOLDER "data"
 #define LOG_FOLDER "logs"
 #define LOG_FILE "backEndLog.txt"
+#define JSON_FILE "config.json"
+//#define JSON_FILE "config_local.json"
+#define CONFIG_STOCKS_PARAM_PREFIX "stock_"
 
 #define URL_KEY "url"
 #define HEADERS_KEY "headers"
@@ -40,6 +43,8 @@
 #define RAPIDAPI_FINANCIALCURRENCY "financialCurrency"
 #define RAPIDAPI_SYMBOL "symbol"
 #define RAPIDAPI_PROCESSEDTIME "processedTime"
+#define RAPIDAPI_URL "api/v1/markets/stock/modules?ticker="
+#define RAPIDAPI_QUERY "&module=financial-data"
 
 #define DATABASE_NAME "finances"
 #define TABLE_STOCKS_NAME "stocks"
@@ -81,6 +86,8 @@
 #define STOP_DATABASE_INGESTION "/stopDatabaseIngestion"
 #define GET_STOCK_INFO "/getStockInfo"
 #define GET_STOCK_INFO_PARAM_STOCK "stock"
+#define ADD_STOCK "/addStock"
+#define ADD_STOCK_INFO_PARAM_STOCK "stockName"
 
 #define START_COLLECTION_ACTION "startCollectionData"
 #define STOP_COLLECTION_ACTION "stopCollectionData"

@@ -41,6 +41,7 @@ public:
 
             std::string periodInSeconds = config->api->rapidApi.at("periodInSeconds");
             periodInSecondsInt = std::stoi(periodInSeconds);
+
             Utils::delay(periodInSecondsInt);
 
             delete config;
