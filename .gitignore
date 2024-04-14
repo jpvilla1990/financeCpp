@@ -2,6 +2,7 @@
 .vscode
 Project*
 cppBackend/bin/*.json
+release/dockerImages/*
 **data
 **/logs
 **/mysql

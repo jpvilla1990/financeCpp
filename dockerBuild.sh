@@ -1,3 +1,8 @@
 version="0.7.0"
+releaseDockerImagesPath="release/dockerImages"
+backEndContainer="collector"
 
-docker build . -t collector:${version}
+rm -rf ${releaseDockerImagesPath}/*
+
+docker build . -t ${backEndContainer}:${version}
+docker save collector:${version} > ${releaseDockerImagesPath}/${backEndContainer}_${version}.tar
