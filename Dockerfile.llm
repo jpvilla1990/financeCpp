@@ -1,0 +1,22 @@
+# Use a base image
+FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+     gcc-11 g++-11 \
+     build-essential
+RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade setuptools wheel
+RUN python -m pip install onprem streamlit langchain-community
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy the src code to the container
+COPY /llm/src /workspace/src
+
+RUN python /workspace/src/setup.py
+
+RUN chmod +x /workspace/src/entrypoint.sh
+# Run the binary
+CMD ["/workspace/src/entrypoint.sh"]
