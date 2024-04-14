@@ -4,5 +4,5 @@ backEndContainer="collector"
 
 rm -rf ${releaseDockerImagesPath}/*
 
-docker build . -t ${backEndContainer}:${version}
+docker build . -t ${backEndContainer}:${version} -f Dockerfile.${backEndContainer}
 docker save collector:${version} > ${releaseDockerImagesPath}/${backEndContainer}_${version}.tar
