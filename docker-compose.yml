@@ -6,9 +6,9 @@ services:
     ports:
       - "8100:8100"
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-      - ./bin/config.json:/app/config.json
+      - ./cppBackend/data:/app/data
+      - ./cppBackend/logs:/app/logs
+      - ./cppBackend/bin/config.json:/app/config.json
 
   mysql:
     container_name: project-mysql

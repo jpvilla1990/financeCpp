@@ -1,4 +1,4 @@
-curl --request GET   --url 'https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/modules?ticker=PAH3.DE&module=financial-data'    --header 'X-RapidAPI-Host: yahoo-finance15.p.rapidapi.com'      --header 'X-RapidAPI-Key: xx'
+curl --request GET   --url 'https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/modules?ticker=MGB.DE&module=financial-data'    --header 'X-RapidAPI-Host: yahoo-finance15.p.rapidapi.com'      --header 'X-RapidAPI-Key: xx'
 
 # How to build and run container
 ## docker build . -t collector:0.1.0

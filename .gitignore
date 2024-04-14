@@ -1,7 +1,7 @@
 .vs
 .vscode
 Project*
-bin/*.json
+cppBackend/bin/*.json
 **data
 **/logs
 **/mysql

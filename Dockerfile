@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy the binary to the container
-COPY /bin/collector /app/collector
+COPY /cppBackend/bin/collector /app/collector
 
 # Run the binary
 CMD ["./collector"]
