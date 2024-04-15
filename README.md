@@ -2,7 +2,8 @@
 curl --request GET   --url 'https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/modules?ticker=MGB.DE&module=financial-data'    --header 'X-RapidAPI-Host: yahoo-finance15.p.rapidapi.com'      --header 'X-RapidAPI-Key: xx'
 
 # how to load a docker image
-docker load < dockerImage.tar
+docker login
+bash dockerBuild.sh
 
 # Run docker container mysql
 docker run -d --name project-mysql-local -e MYSQL_ROOT_PASSWORD=admin -p 3306:3306 -p 33060:33060 mysql:8.1.0

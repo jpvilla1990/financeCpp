@@ -1,4 +1,5 @@
 releaseDockerImagesPath="release/dockerImages"
+registryDockerHub="jpvilla1990"
 
 versionBackend="0.7.0"
 backEndContainer="collector"
@@ -8,8 +9,8 @@ llmContainer="llm"
 
 rm -rf ${releaseDockerImagesPath}/*
 
-docker build . -t ${backEndContainer}:${versionBackend} -f Dockerfile.${backEndContainer}
-docker save ${backEndContainer}:${versionBackend} > ${releaseDockerImagesPath}/${backEndContainer}_${versionBackend}.tar
+docker build . -t ${registryDockerHub}/${backEndContainer}:${versionBackend} -f Dockerfile.${backEndContainer}
+docker push ${registryDockerHub}/${backEndContainer}:${versionBackend}
 
-docker build . -t ${llmContainer}:${versionLlm} -f Dockerfile.${llmContainer}
-docker save ${llmContainer}:${versionLlm} > ${releaseDockerImagesPath}/${llmContainer}_${versionLlm}.tar
+docker build . -t ${registryDockerHub}/${llmContainer}:${versionLlm} -f Dockerfile.${llmContainer}
+docker push ${registryDockerHub}/${llmContainer}:${versionLlm}

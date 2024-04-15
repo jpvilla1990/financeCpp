@@ -6,3 +6,4 @@ release/dockerImages/*
 **data
 **/logs
 **/mysql
+**/__pycache__
