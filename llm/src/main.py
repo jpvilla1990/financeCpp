@@ -14,14 +14,22 @@ class LlmApi(object):
         """
         self.__llmCustom.ingestData()
 
+    def ask(self, question : str) -> dict:
+        """
+        Method to ask questions
+        """
+        response : dict = self.__llmCustom.ask(question)
+        return response
+
 app : FastAPI = FastAPI()
 api : LlmApi = LlmApi()
 
 @app.get("/api/ingest")
-def get_path1():
+def getIngest():
     api.ingest()
     return {"message": "Ingestion Documents Completed"}
 
-@app.get("/api/prompt")
-def get_path2():
-    return {"message": "prompt"}
+@app.get("/api/ask")
+def getAsk(question : str):
+    response : dict = api.ask(question)
+    return {"message": response}

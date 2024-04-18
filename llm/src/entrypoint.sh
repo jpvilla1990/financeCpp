@@ -4,4 +4,4 @@ DIR="$(dirname "$(readlink -f "$0")")"
 
 python ${DIR}/ingest.py
 
-onprem --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000

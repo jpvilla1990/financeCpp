@@ -8,4 +8,4 @@ bash dockerBuild.sh
 # Run docker container mysql
 docker run -d --name project-mysql-local -e MYSQL_ROOT_PASSWORD=admin -p 3306:3306 -p 33060:33060 mysql:8.1.0
 # Run docker container pytorch
-docker run -it --rm -v /home/jpvilla1990/financeCpp/llm/data:/workspace/data -p 8300:8000 llm:0.1.0
+docker run -it --rm -v /home/jpvilla1990/financeCpp/llm/data:/workspace/data -p 8300:8000 jpvilla1990/llm:0.2.0
