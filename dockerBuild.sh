@@ -4,7 +4,7 @@ registryDockerHub="jpvilla1990"
 versionBackend="0.7.0"
 backEndContainer="collector"
 
-versionLlm="0.2.0"
+versionLlm="0.3.0"
 llmContainer="llm"
 
 rm -rf ${releaseDockerImagesPath}/*

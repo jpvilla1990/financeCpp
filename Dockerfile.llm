@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
      build-essential
 RUN python -m pip install --upgrade pip
 RUN python -m pip install --upgrade setuptools wheel
-RUN python -m pip install onprem streamlit langchain-community fastapi "uvicorn[standard]"
+RUN python -m pip install onprem streamlit langchain-community fastapi "uvicorn[standard]" googlesearch-python
 
 # Set working directory
 WORKDIR /workspace

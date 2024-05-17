@@ -20,6 +20,13 @@ class LlmApi(object):
         """
         response : dict = self.__llmCustom.ask(question)
         return response
+    
+    def getStockStatus(self, stock : str) -> dict:
+        """
+        Method to get stock information
+        """
+        response : dict = self.__llmCustom.getStockStatus(stock)
+        return response
 
 app : FastAPI = FastAPI()
 api : LlmApi = LlmApi()
@@ -33,3 +40,8 @@ def getIngest():
 def getAsk(question : str):
     response : dict = api.ask(question)
     return {"message": response}
+
+@app.get("/api/stockStatus")
+def getStockStatus(stock : str):
+    response : dict = api.getStockStatus(stock)
+    return {"message" : response}
